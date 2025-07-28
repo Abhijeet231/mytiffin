@@ -41,11 +41,16 @@ const userSchema = new Schema(
         password: {
             type: String,
             required: [true, 'password is required'] // custom error if password is empty
+        }, 
+        refreshToken: {
+            type: String
         }
+
     },
     {timestamps: true}
-)
+);
 
+//Hashing Password
 userSchema.pre('save', async function(next){
     if(!this.isModified("password")) return next();
 
@@ -53,6 +58,7 @@ userSchema.pre('save', async function(next){
       next();
 });
 
+//Checking passowrd 
 userSchema.methods.isPasswordCorrect = async function (password){
   return await  bcrypt.compare(password, this.password)
 };
