@@ -90,7 +90,7 @@ return res.stauts(201).json(
     new ApiResponse(200, createdUser, "User Registered Successfully")
 )
 
-});
+}); // end of register user .....
 
 
 //LOGIN USER
@@ -121,7 +121,7 @@ const {accessToken,refreshToken} = await generateAccessToken(user._id);
 
 const loggedInUser = await User.findById(user._id).select("-password -refreshToken"); 
 
-//Send tokens in Cookies
+//setting up cookie options
 const options = {
     httpOnly: true,
     secure: true
@@ -145,7 +145,28 @@ return res
 
 //LOGOUT USER
 const logoutUser = asyncHandler(async(req,res) => {
-    
+   await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    };
+
+    return res
+    .stauts(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User Logged Out "))
 })
 
 
@@ -154,5 +175,6 @@ const logoutUser = asyncHandler(async(req,res) => {
 
 export {
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 };
